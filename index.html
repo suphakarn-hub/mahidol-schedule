@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ตารางคิวคนขับรถ — มหิดล</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --green:#2d7a3a;--green-bg:#e8f5eb;--green-bd:#a8d5b0;
+  --blue:#1a5fa8;--blue-bg:#e8f0fb;--blue-bd:#8ab4e8;
+  --red:#b02020;--red-bg:#fceaea;--red-bd:#e8a0a0;
+  --amber:#8a6000;--amber-bg:#fff8e6;--amber-bd:#e8c96a;
+  --gray:#5a5a5a;--gray-bg:#f3f3f3;--gray-bd:#d0d0d0;
+  --text:#1a1a1a;--text2:#555;--text3:#888;
+  --border:#e0e0e0;--bg:#f7f8fa;
+  --r:10px;--rs:6px;
+  --shadow:0 1px 4px rgba(0,0,0,0.08);
+}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);font-size:15px;min-height:100vh;}
+#notice-bar{background:var(--amber-bg);border-bottom:2px solid var(--amber-bd);padding:10px 16px;display:none;}
+#notice-bar.show{display:block;}
+.n-inner{max-width:700px;margin:0 auto;display:flex;gap:10px;align-items:flex-start;}
+.n-msg{font-size:14px;color:var(--amber);font-weight:500;line-height:1.5;}
+.n-time{font-size:11px;color:var(--amber);opacity:.7;margin-top:2px;}
+#admin-panel{background:#fff;border-bottom:1px solid var(--border);padding:12px 16px;display:none;}
+#admin-panel.show{display:block;}
+.adm{max-width:700px;margin:0 auto;}
+.adm-ttl{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px;}
+.adm-row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px;}
+.adm-row textarea{flex:1;min-width:180px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--rs);font-family:inherit;font-size:13px;resize:vertical;min-height:56px;}
+.adm-row button{padding:8px 14px;border:none;border-radius:var(--rs);cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;}
+.btn-s{background:#185FA5;color:#fff;}
+.btn-c{background:var(--gray-bg);color:var(--gray);}
+header{background:#fff;border-bottom:1px solid var(--border);padding:11px 16px;position:sticky;top:0;z-index:50;box-shadow:var(--shadow);}
+.h-inner{max-width:700px;margin:0 auto;display:flex;align-items:center;gap:10px;}
+.h-logo{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1a5fa8,#2d7a3a);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700;flex-shrink:0;cursor:pointer;-webkit-user-select:none;user-select:none;}
+.h-ttl{flex:1;}
+.h-ttl h1{font-size:15px;font-weight:700;}
+.h-ttl p{font-size:11px;color:var(--text3);}
+.h-btn{padding:6px 12px;border:1px solid var(--border);border-radius:var(--rs);background:#fff;font-family:inherit;font-size:12px;cursor:pointer;color:var(--text2);}
+.h-btn.on{background:var(--amber-bg);border-color:var(--amber-bd);color:var(--amber);}
+.nav{max-width:700px;margin:12px auto;padding:0 16px;display:flex;align-items:center;gap:8px;}
+.nav-btn{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);background:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.nav-info{flex:1;text-align:center;}
+.nav-date{font-size:16px;font-weight:700;}
+.nav-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.btn-today{padding:6px 14px;border-radius:20px;border:1px solid var(--blue-bd);background:var(--blue-bg);color:var(--blue);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;}
+.we-badge{display:inline-block;background:var(--red-bg);color:var(--red);border-radius:20px;padding:1px 8px;font-size:11px;font-weight:600;margin-left:6px;vertical-align:middle;}
+.month-badge{max-width:700px;margin:0 auto 4px;padding:0 16px;}
+.month-box{background:#fff;border:1px solid var(--border);border-radius:var(--rs);padding:7px 12px;font-size:12px;color:var(--text2);display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.rtag{display:inline-block;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:600;}
+.rtag-g{background:var(--green-bg);color:var(--green);}
+.rtag-b{background:var(--blue-bg);color:var(--blue);}
+.rtag-r{background:var(--red-bg);color:var(--red);}
+.note-wrap{max-width:700px;margin:0 auto 4px;padding:0 16px;}
+.note-box{background:var(--amber-bg);border:1px solid var(--amber-bd);border-radius:var(--rs);padding:9px 12px;font-size:13px;color:var(--amber);font-weight:500;line-height:1.5;display:none;}
+.note-box.show{display:block;}
+.note-head{font-size:11px;font-weight:700;letter-spacing:.3px;margin-bottom:3px;opacity:.7;}
+.cards{max-width:700px;margin:0 auto;padding:0 16px 28px;}
+.route-card{background:#fff;border-radius:var(--r);border:1px solid var(--border);margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow);}
+.r-head{padding:10px 14px;display:flex;align-items:center;gap:10px;}
+.r-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.r-name{font-size:14px;font-weight:700;flex:1;}
+.r-cnt{font-size:12px;font-weight:600;border-radius:20px;padding:2px 10px;}
+.ok{background:#e8f5eb;color:#2d7a3a;}
+.err{background:var(--red-bg);color:var(--red);}
+.row{display:flex;align-items:center;gap:9px;padding:8px 14px;border-top:1px solid var(--border);}
+.row.stopped{opacity:.3;}
+.row.offp{opacity:.45;background:var(--gray-bg);}
+.qn{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.car{border-radius:5px;padding:2px 8px;font-size:12px;font-weight:600;font-family:monospace;flex-shrink:0;}
+.car-g{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd);}
+.car-b{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd);}
+.car-r{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd);}
+.car-o{background:var(--gray-bg);color:var(--gray);border:1px solid var(--gray-bd);}
+.dname{flex:1;font-size:14px;font-weight:600;}
+.dname.empty{color:#ccc;}
+.tag{border-radius:4px;padding:1px 7px;font-size:11px;font-weight:600;}
+.tag-si{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd);}
+.tag-cr{background:#f3e8fb;color:#6a2fa0;border:1px solid #c9a0e8;}
+.sec-lbl{padding:5px 14px;font-size:11px;font-weight:700;color:var(--text3);background:var(--gray-bg);border-top:1px solid var(--border);}
+footer{text-align:center;padding:14px;font-size:11px;color:var(--text3);}
+footer span{color:var(--blue);font-weight:700;}
+</style>
+</head>
+<body>
+
+<div id="notice-bar">
+  <div class="n-inner">
+    <div style="font-size:20px;flex-shrink:0;">⚠️</div>
+    <div>
+      <div style="font-size:11px;font-weight:700;color:var(--amber);letter-spacing:.5px;margin-bottom:2px;">ประกาศพิเศษ</div>
+      <div class="n-msg" id="n-msg"></div>
+      <div class="n-time" id="n-time"></div>
+    </div>
+  </div>
+</div>
+
+<div id="admin-panel">
+  <div class="adm">
+    <div class="adm-ttl">📢 ประกาศพิเศษ (แสดงทุกวัน)</div>
+    <div class="adm-row">
+      <textarea id="inp-notice" placeholder="เช่น รถมม006 เสีย วายุขับ มม008 แทนวันนี้"></textarea>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <button class="btn-s" onclick="saveNotice()">ประกาศ</button>
+        <button class="btn-c" onclick="clearNotice()">ลบ</button>
+      </div>
+    </div>
+    <div class="adm-ttl">📌 ข้อกำหนดพิเศษรายวัน (รูปแบบ ว/ด/ปพ.ศ.: รายละเอียด)</div>
+    <div class="adm-row">
+      <textarea id="inp-special" placeholder="16/5/2569: ณัฐวุฒิลา พรหมพิทักษ์ขับแทน&#10;17/5/2569: หมายเหตุ..."></textarea>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        <button class="btn-s" onclick="saveSpecial()">บันทึก</button>
+        <button class="btn-c" onclick="clearSpecial()">ล้าง</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="h-inner">
+    <div class="h-logo" id="logo" onclick="logoClick()" title="แตะ 5 ครั้งเพื่อเปิดโหมดแก้ไข">M</div>
+    <div class="h-ttl">
+      <h1>ตารางคิวคนขับรถ</h1>
+      <p>มหาวิทยาลัยมหิดล · เริ่มคิว 14 พ.ค. 2569</p>
+    </div>
+    <button class="h-btn" id="adm-btn" onclick="toggleAdmin()">⚙️ แก้ไข</button>
+  </div>
+</header>
+
+<div class="nav">
+  <button class="nav-btn" onclick="changeDay(-1)">&#8592;</button>
+  <div class="nav-info">
+    <div class="nav-date" id="nav-date"></div>
+    <div class="nav-sub" id="nav-sub"></div>
+  </div>
+  <button class="nav-btn" onclick="changeDay(1)">&#8594;</button>
+  <button class="btn-today" onclick="goToday()">วันนี้</button>
+</div>
+
+<div class="month-badge"><div class="month-box" id="month-box"></div></div>
+
+<div class="note-wrap">
+  <div class="note-box" id="note-box">
+    <div class="note-head">📌 ข้อกำหนดพิเศษวันนี้</div>
+    <div id="note-content"></div>
+  </div>
+</div>
+
+<div class="cards" id="cards"></div>
+
+<footer>คิวเลื่อนลงทุกวัน · สลับสายทุกสิ้นเดือน · <span>แตะโลโก้ M 5 ครั้ง</span> เพื่อแก้ไขประกาศ</footer>
+
+<script>
+const MONTHS=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const DAYS=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'];
+const WE=[0,6];
+const REF=new Date(2026,4,14,0,0,0,0);
+const REF_Y=2026, REF_M=4;
+
+// ===== คนขับ 3 กลุ่ม =====
+const GRP={
+  A:[
+    {id:1, name:'ชาติ',         offDays:[3]},
+    {id:2, name:'จำรัส',        offDays:[6]},
+    {id:3, name:'ธนกฤต',       offDays:[0]},
+    {id:4, name:'สุธรรม',       offDays:[0]},
+    {id:5, name:'บัวทอง',       offDays:[6]},
+    {id:17,name:'วายุ',         offDays:[4]}
+  ],
+  B:[
+    {id:6, name:'เปรม',         offDays:[6,0]},
+    {id:7, name:'สัมพันธ์',     offDays:[0]},
+    {id:8, name:'เฉลิมพล',     offDays:[6]},
+    {id:9, name:'อำพล',         offDays:[6]},
+    {id:10,name:'คมสันต์',      offDays:[6]}
+  ],
+  C:[
+    {id:11,name:'วีระ',         offDays:[2]},
+    {id:12,name:'ณัฐวุฒิ',     offDays:[0]},
+    {id:13,name:'อัธยา',        offDays:[0]},
+    {id:14,name:'บดินทร์',      offDays:[0]},
+    {id:15,name:'ธนบูรณ์',     offDays:[1]},
+    {id:16,name:'พรหมพิทักษ์', offDays:[5]}
+  ]
+};
+
+// รถประจำสาย (ไม่เปลี่ยน)
+const CARS={
+  green:['มม004','มม007','มม006','มม010','มม008'],
+  blue: ['865','828','824','826','823'],
+  red:  ['มม009','มม005','มม003','มม001','มม002']
+};
+
+const META={
+  green:{label:'สายเขียว', cc:'car-g', color:'#2d7a3a', bg:'#e8f5eb', bd:'#a8d5b0', tc:'rtag-g'},
+  blue: {label:'สายน้ำเงิน',cc:'car-b', color:'#1a5fa8', bg:'#e8f0fb', bd:'#8ab4e8', tc:'rtag-b'},
+  red:  {label:'สายแดง',  cc:'car-r', color:'#b02020', bg:'#fceaea', bd:'#e8a0a0', tc:'rtag-r'}
+};
+const ROUTES=['green','blue','red'];
+
+// วันธรรมดา: 5 คันทุกสาย
+const NEED_WD={green:5,blue:5,red:5};
+// วันหยุด หมุนเวียน: น้ำเงิน→แดง→เขียว ได้ 4 คัน
+const NEED_WE=[
+  {green:3,blue:4,red:3},
+  {green:3,blue:3,red:4},
+  {green:4,blue:3,red:3}
+];
+
+// monthly rotation: A→green,B→blue,C→red → A→blue,B→red,C→green → A→red,B→green,C→blue
+const MON_MAP=[
+  {A:'green',B:'blue', C:'red'},
+  {A:'blue', B:'red',  C:'green'},
+  {A:'red',  B:'green',C:'blue'}
+];
+
+function monIdx(d){
+  const off=((d.getFullYear()-REF_Y)*12+(d.getMonth()-REF_M));
+  return ((off%3)+3)%3;
+}
+function driversForRoute(route,d){
+  const map=MON_MAP[monIdx(d)];
+  const g=Object.keys(map).find(k=>map[k]===route);
+  return GRP[g]||[];
+}
+function routeOfDriver(id,d){
+  const map=MON_MAP[monIdx(d)];
+  for(const g of['A','B','C']){
+    if(GRP[g].find(x=>x.id===id)) return map[g];
+  }
+  return null;
+}
+
+function weCountBefore(d){
+  let c=0;
+  const t=new Date(REF);
+  const end=new Date(d); end.setHours(0,0,0,0);
+  while(t<end){if(WE.includes(t.getDay()))c++;t.setDate(t.getDate()+1);}
+  return c;
+}
+function weekendNeed(d){return NEED_WE[weCountBefore(d)%3];}
+
+function dayDiff(d){return Math.round((d-REF)/86400000);}
+function isWE(d){return WE.includes(d.getDay());}
+function isOff(dr,d){return dr.offDays.includes(d.getDay());}
+
+function getQueue(route,d){
+  const drivers=driversForRoute(route,d);
+  const cars=CARS[route];
+  const need=(isWE(d)?weekendNeed(d):NEED_WD)[route];
+  const n=drivers.length;
+  if(!n) return{running:[],stopped:[],offList:[],need};
+  const diff=dayDiff(d);
+  const offset=((n-(diff%n))%n);
+  const ordered=[];
+  for(let i=0;i<n;i++) ordered.push(drivers[(offset+i)%n]);
+  const available=ordered.filter(dr=>!isOff(dr,d));
+  const offList=ordered.filter(dr=>isOff(dr,d));
+  const usedIds=new Set();
+  const running=[];
+  for(let ci=0;ci<need;ci++){
+    const car=cars[ci];
+    const orig=ordered[ci];
+    let actual=available.find(dr=>!usedIds.has(dr.id))||null;
+    let cross=false;
+    if(!actual){
+      const allDr=Object.values(GRP).flat();
+      actual=allDr.find(dr=>!isOff(dr,d)&&!usedIds.has(dr.id))||null;
+      if(actual) cross=true;
+    }
+    if(actual) usedIds.add(actual.id);
+    const standIn=!cross&&orig&&isOff(orig,d)&&actual&&actual.id!==orig.id;
+    running.push({car,driver:actual,orig,queuePos:ci+1,standIn:!!standIn,cross:!!cross});
+  }
+  const stopped=[];
+  for(let ci=need;ci<cars.length;ci++) stopped.push({car:cars[ci]});
+  return{running,stopped,offList,need};
+}
+
+// ===== UI =====
+let dayOff=0,adminOpen=false,logoCnt=0,logoT=null;
+
+function curDate(){const d=new Date();d.setDate(d.getDate()+dayOff);d.setHours(0,0,0,0);return d;}
+function fmtTH(d){return DAYS[d.getDay()]+' '+d.getDate()+' '+MONTHS[d.getMonth()]+' '+(d.getFullYear()+543);}
+function ls(k){try{return localStorage.getItem(k)||'';}catch(e){return '';}}
+function ss(k,v){try{localStorage.setItem(k,v);}catch(e){}}
+
+function qColor(pos){
+  return [{bg:'#1a5fa8',fg:'#fff'},{bg:'#8ab4e8',fg:'#0c3d7a'},{bg:'#a8d5b0',fg:'#1a5a25'},
+          {bg:'#f5d080',fg:'#6a4400'},{bg:'#e0e0e0',fg:'#444'},{bg:'#e8e8e8',fg:'#555'}][Math.min(pos-1,5)];
+}
+
+function render(){
+  const d=curDate();
+  const we=isWE(d);
+  const mi=monIdx(d);
+  const map=MON_MAP[mi];
+
+  // header
+  document.getElementById('nav-date').innerHTML=fmtTH(d)+(we?'<span class="we-badge">วันหยุด</span>':'');
+
+  if(we){
+    const wi=weCountBefore(d)%3;
+    const wl=['น้ำเงิน 4 | แดง 3 | เขียว 3','แดง 4 | น้ำเงิน 3 | เขียว 3','เขียว 4 | น้ำเงิน 3 | แดง 3'];
+    document.getElementById('nav-sub').textContent='วันหยุด — จำนวนรถ: '+wl[wi];
+  } else {
+    document.getElementById('nav-sub').textContent='คิวเลื่อนลงทุกวัน';
+  }
+
+  // month rotation info
+  const grpNames={A:'กลุ่ม ก',B:'กลุ่ม ข',C:'กลุ่ม ค'};
+  const mName=MONTHS[d.getMonth()]+' '+(d.getFullYear()+543);
+  const tags=['A','B','C'].map(g=>{
+    const r=map[g];
+    return `<span class="rtag ${META[r].tc}">${grpNames[g]} → ${META[r].label}</span>`;
+  }).join(' ');
+  document.getElementById('month-box').innerHTML='<b style="color:var(--text);margin-right:4px;">'+mName+':</b>'+tags;
+
+  // notice
+  const nmsg=ls('notice_msg');
+  const nbar=document.getElementById('notice-bar');
+  if(nmsg){
+    document.getElementById('n-msg').textContent=nmsg;
+    const nt=ls('notice_time');
+    document.getElementById('n-time').textContent=nt?'ประกาศเมื่อ: '+nt:'';
+    nbar.classList.add('show');
+  } else {nbar.classList.remove('show');}
+
+  // day note
+  const sp=ls('special_notes');
+  const dk=d.getDate()+'/'+(d.getMonth()+1)+'/'+(d.getFullYear()+543);
+  const lines=(sp||'').split('\n').filter(l=>l.startsWith(dk+':'));
+  const nb=document.getElementById('note-box');
+  if(lines.length){
+    document.getElementById('note-content').textContent=lines.map(l=>l.slice(dk.length+1).trim()).join('\n');
+    nb.classList.add('show');
+  } else {nb.classList.remove('show');}
+
+  // cards
+  let html='';
+  for(const route of ROUTES){
+    const m=META[route];
+    const {running,stopped,offList,need}=getQueue(route,d);
+    const filled=running.filter(s=>s.driver).length;
+    const badge=filled>=need
+      ?'<span class="r-cnt ok">✓ '+filled+'/'+need+'</span>'
+      :'<span class="r-cnt err">⚠ '+filled+'/'+need+' ขาด '+(need-filled)+'</span>';
+
+    html+='<div class="route-card">'
+      +'<div class="r-head" style="background:'+m.bg+';border-bottom:1px solid '+m.bd+';">'
+      +'<div class="r-dot" style="background:'+m.color+';"></div>'
+      +'<div class="r-name" style="color:'+m.color+';">'+m.label+'</div>'
+      +badge+'</div>';
+
+    for(const s of running){
+      const qc=qColor(s.queuePos);
+      const name=s.driver?s.driver.name:'— ว่าง —';
+      const nc=s.driver?'':'empty';
+      let tag='';
+      if(s.cross&&s.driver){
+        const sr=routeOfDriver(s.driver.id,d);
+        const sl=sr?META[sr].label:'';
+        tag='<span class="tag tag-cr">ข้ามสาย'+(sl?': '+sl:'')+'</span>';
+      } else if(s.standIn){
+        tag='<span class="tag tag-si">แทน '+(s.orig?s.orig.name:'')+'</span>';
+      }
+      html+='<div class="row">'
+        +'<div class="qn" style="background:'+qc.bg+';color:'+qc.fg+';">'+s.queuePos+'</div>'
+        +'<div class="car '+m.cc+'">'+s.car+'</div>'
+        +'<div class="dname '+nc+'">'+name+'</div>'
+        +tag+'</div>';
+    }
+
+    if(stopped.length){
+      html+='<div class="sec-lbl">หยุดวิ่งวันนี้</div>';
+      for(const s of stopped){
+        html+='<div class="row stopped">'
+          +'<div style="width:24px;"></div>'
+          +'<div class="car '+m.cc+'">'+s.car+'</div>'
+          +'<div class="dname" style="color:#bbb;">ไม่วิ่งวันหยุด</div></div>';
+      }
+    }
+    if(offList.length){
+      html+='<div class="sec-lbl">🏖 หยุดประจำวันนี้</div>';
+      for(const dr of offList){
+        html+='<div class="row offp">'
+          +'<div style="width:24px;"></div>'
+          +'<div class="car car-o">'+dr.name+'</div>'
+          +'<div class="dname" style="color:#888;font-size:13px;">หยุด</div></div>';
+      }
+    }
+    html+='</div>';
+  }
+  document.getElementById('cards').innerHTML=html;
+}
+
+function changeDay(d){dayOff+=d;render();}
+function goToday(){dayOff=0;render();}
+
+function toggleAdmin(){
+  adminOpen=!adminOpen;
+  document.getElementById('admin-panel').classList.toggle('show',adminOpen);
+  document.getElementById('adm-btn').classList.toggle('on',adminOpen);
+  if(adminOpen){
+    document.getElementById('inp-notice').value=ls('notice_msg');
+    document.getElementById('inp-special').value=ls('special_notes');
+  }
+}
+function saveNotice(){
+  const msg=document.getElementById('inp-notice').value.trim();
+  ss('notice_msg',msg);
+  if(msg){const n=new Date();ss('notice_time',n.getDate()+'/'+(n.getMonth()+1)+'/'+(n.getFullYear()+543)+' '+n.getHours()+':'+String(n.getMinutes()).padStart(2,'0')+' น.');}
+  render();
+}
+function clearNotice(){ss('notice_msg','');ss('notice_time','');document.getElementById('inp-notice').value='';render();}
+function saveSpecial(){ss('special_notes',document.getElementById('inp-special').value.trim());render();}
+function clearSpecial(){ss('special_notes','');document.getElementById('inp-special').value='';render();}
+
+function logoClick(){
+  logoCnt++;clearTimeout(logoT);
+  logoT=setTimeout(()=>{logoCnt=0;},2000);
+  if(logoCnt>=5){logoCnt=0;toggleAdmin();}
+}
+
+render();
+</script>
+</body>
+</html>
